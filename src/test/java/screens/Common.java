@@ -76,4 +76,39 @@ public class Common {
             return false;
         }
     }
+
+    protected void sendKeysActiveElement(String text) {
+        WebElement activeElement = driver.switchTo().activeElement();
+        activeElement.sendKeys(text);
+    }
+
+    protected void waitForElement(By locator) {
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(locator)
+        );
+    }
+
+    protected void clickNthElement(By locator, int index) {
+        WebElement element = wait.until(driver -> {
+            List<WebElement> elements = driver.findElements(locator);
+
+            return elements.size() > index
+                    ? elements.get(index)
+                    : null;
+        });
+
+        element.click();
+    }
+
+    protected String getContentDescription(By locator) {
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(locator)
+        ).getAttribute("content-desc");
+    }
+
+    protected void waitForElementToDisappear(By locator) {
+        wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(locator)
+        );
+    }
 }

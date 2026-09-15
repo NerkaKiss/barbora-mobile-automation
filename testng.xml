@@ -5,7 +5,9 @@
         <classes>
             <class name="test.barbora.HomeTest"/>
             <class name="test.barbora.NavigationTest"/>
+            <class name="test.barbora.LoginTest"/>
             <class name="test.barbora.SearchTest"/>
+            <class name="test.barbora.ProductCartFlowTest"/>
         </classes>
     </test>
 </suite>

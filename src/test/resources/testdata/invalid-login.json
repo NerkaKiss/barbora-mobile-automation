@@ -1,0 +1,17 @@
+[
+  {
+    "scenario": "Unknown email",
+    "email": "unknown.user@example.com",
+    "password": "WrongPassword123"
+  },
+  {
+    "scenario": "Valid email with wrong password",
+    "email": "mite.trudge7178@eagereverest.com",
+    "password": "WrongPassword123"
+  },
+  {
+    "scenario": "Unknown credentials",
+    "email": "another.user@example.com",
+    "password": "InvalidPassword456"
+  }
+]
