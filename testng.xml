@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Barbora Mobile Test Suite">
+    <test name="Barbora Tests">
+        <classes>
+            <class name="test.barbora.HomeTest"/>
+            <class name="test.barbora.NavigationTest"/>
+            <class name="test.barbora.SearchTest"/>
+        </classes>
+    </test>
+</suite>

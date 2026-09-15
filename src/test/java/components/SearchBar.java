@@ -22,7 +22,7 @@ public class SearchBar extends Common {
                 "new UiSelector().descriptionMatches(\"(?i).*" + productName + ".*\")"
         );
 
-        return !getElements(suggestions).isEmpty();
+        return areElementsDisplayed(suggestions);
     }
 
     public void submitSearch() {

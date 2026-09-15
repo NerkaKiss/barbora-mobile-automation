@@ -13,6 +13,6 @@ public class SearchScreen extends Common {
         By results = AppiumBy.androidUIAutomator(
                 "new UiSelector().descriptionMatches(\"(?i).*" + query + ".*\")"
         );
-        return !getElements(results).isEmpty();
+        return areElementsDisplayed(results);
     }
 }

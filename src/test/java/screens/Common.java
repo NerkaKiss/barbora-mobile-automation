@@ -64,4 +64,16 @@ public class Common {
                 Map.of("action", action)
         );
     }
+
+    protected boolean areElementsDisplayed(By locator) {
+        try {
+            return wait.until(driver ->
+                    driver.findElements(locator)
+                            .stream()
+                            .anyMatch(WebElement::isDisplayed)
+            );
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
 }
