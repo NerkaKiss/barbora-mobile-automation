@@ -1,4 +1,31 @@
 package components;
 
-public class SearchBar {
+import io.appium.java_client.AppiumBy;
+import org.openqa.selenium.By;
+import screens.Common;
+
+public class SearchBar extends Common {
+    private final By searchInput =
+            AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\")");
+
+    public void enterSearchQuery(String productName) {
+        clickOnElement(searchInput);
+        sendKeysToElement(searchInput, productName);
+    }
+
+    public String getSearchQuery() {
+        return getTextFromElement(searchInput);
+    }
+
+    public boolean areSuggestionsDisplayed(String productName) {
+        By suggestions = AppiumBy.androidUIAutomator(
+                "new UiSelector().descriptionMatches(\"(?i).*" + productName + ".*\")"
+        );
+
+        return !getElements(suggestions).isEmpty();
+    }
+
+    public void submitSearch() {
+        performEditorAction("search");
+    }
 }
