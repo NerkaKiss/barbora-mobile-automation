@@ -39,12 +39,19 @@ jobs:
           appium --version
           appium driver list --installed
 
-      - name: Check private APK repository
+      - name: Download BARBORA APK
         env:
           GH_TOKEN: ${{ secrets.BARBORA_APK_TOKEN }}
         run: |
-          gh repo view NerkaKiss/barbora-test-apk
-          gh release list --repo NerkaKiss/barbora-test-apk
+          gh release download v1 \
+            --repo NerkaKiss/barbora-test-apk \
+            --pattern "barbora-apk.zip"
+
+          mkdir -p apk
+          unzip barbora-apk.zip -d apk
+
+          echo "Downloaded APK files:"
+          ls -lh apk
 
       - name: Enable KVM
         run: |
