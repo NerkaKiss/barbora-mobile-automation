@@ -3,8 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.example</groupId>
+    <groupId>io.github.nerkakiss</groupId>
     <artifactId>barbora-mobile-automation</artifactId>
+    <name>Barbora Mobile Automation</name>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -14,8 +15,17 @@
         <selenium.version>4.43.0</selenium.version>
         <testng.version>7.12.0</testng.version>
         <surefire.version>3.5.0</surefire.version>
+        <allure.testng.version>2.29.1</allure.testng.version>
+        <allure.maven.version>2.15.2</allure.maven.version>
+        <allure.report.version>2.33.0</allure.report.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.testng.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.appium</groupId>
             <artifactId>java-client</artifactId>
@@ -49,6 +59,19 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven.version}</version>
+                <configuration>
+                    <reportVersion>${allure.report.version}</reportVersion>
+                    <executorInfo>
+                        <name>Maven</name>
+                        <type>maven</type>
+                        <buildName>${project.name}</buildName>
+                    </executorInfo>
                 </configuration>
             </plugin>
         </plugins>

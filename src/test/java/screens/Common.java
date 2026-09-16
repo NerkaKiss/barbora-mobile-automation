@@ -111,4 +111,12 @@ public class Common {
                 ExpectedConditions.invisibilityOfElementLocated(locator)
         );
     }
+
+    protected WebElement getParentElement(By childLocator) {
+        WebElement child = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(childLocator)
+        );
+
+        return child.findElement(By.xpath(".."));
+    }
 }

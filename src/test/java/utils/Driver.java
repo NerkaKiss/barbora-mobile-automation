@@ -24,6 +24,10 @@ public final class Driver {
         options.setCapability(
                 "appium:forceAppLaunch",
                 ConfigReader.getBoolean("app.forceLaunch"));
+        options.setCapability(
+                "appium:settings[limitXPathContextScope]",
+                false
+        );
 
         try {
             driver = new AndroidDriver(
@@ -53,10 +57,16 @@ public final class Driver {
     }
 
     public static void quitDriver() {
-
         if (driver != null) {
-            driver.quit();
-            driver = null;
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                System.err.println(
+                        "Failed to quit driver: " + e.getMessage()
+                );
+            } finally {
+                driver = null;
+            }
         }
     }
 }

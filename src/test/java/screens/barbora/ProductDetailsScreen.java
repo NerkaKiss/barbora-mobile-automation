@@ -3,6 +3,7 @@ package screens.barbora;
 import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 import screens.Common;
+import utils.UiSelectorUtils;
 
 public class ProductDetailsScreen extends Common {
 
@@ -17,7 +18,9 @@ public class ProductDetailsScreen extends Common {
         By product = AppiumBy.androidUIAutomator(
                 "new UiSelector()" +
                         ".className(\"android.view.View\")" +
-                        ".descriptionMatches(\"(?i).*" + productName + ".*\")"
+                        ".descriptionMatches(\"(?i).*" +
+                        UiSelectorUtils.escapeRegexLiteral(productName) +
+                        ".*\")"
         );
         return getContentDescription(product);
     }

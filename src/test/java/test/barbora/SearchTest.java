@@ -7,8 +7,8 @@ import screens.barbora.SearchScreen;
 import test.TestBase;
 
 public class SearchTest extends TestBase {
-    @Test
-    public void searchFieldShouldAcceptProductQuery() throws InterruptedException {
+    @Test(groups = "smoke")
+    public void searchFieldShouldAcceptProductQuery() {
 
         SearchBar searchBar = new SearchBar();
         searchBar.enterSearchQuery("pienas");
@@ -17,7 +17,7 @@ public class SearchTest extends TestBase {
                 "pienas", "Search field should contain entered query");
     }
 
-    @Test
+    @Test(groups = "smoke")
     public void searchSuggestionsShouldBeDisplayed() {
 
         SearchBar searchBar = new SearchBar();
@@ -27,7 +27,7 @@ public class SearchTest extends TestBase {
                 "Search suggestions should be displayed");
     }
 
-    @Test
+    @Test(groups = "regression")
     public void searchResultsShouldBeDisplayedAfterSubmittingQuery() {
         SearchBar searchBar = new SearchBar();
         SearchScreen searchScreen = new SearchScreen();

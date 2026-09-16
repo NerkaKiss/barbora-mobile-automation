@@ -42,21 +42,13 @@ public class LoginTest extends TestBase {
         LoginScreen loginScreen = new LoginScreen();
 
         navigation.openProfile();
-        loginScreen.login(
-                EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
-                EnvReader.getRequired("BARBORA_LOGIN_PASSWORD")
-        );
+        loginScreen.login(EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
+                EnvReader.getRequired("BARBORA_LOGIN_PASSWORD"));
 
-        Assert.assertTrue(
-                loginScreen.isUserLoggedIn(),
-                "User should be logged in after entering valid credentials"
-        );
+        Assert.assertTrue(loginScreen.isUserLoggedIn(), "User should be logged in after entering valid credentials");
     }
 
-    @Test(
-            groups = "regression",
-            dataProvider = "invalidCredentials"
-    )
+    @Test(groups = "regression", dataProvider = "invalidCredentials")
     public void loginShouldFailWithInvalidCredentials(LoginTestData data) {
 
         BottomNavigation navigation = new BottomNavigation();
@@ -64,22 +56,14 @@ public class LoginTest extends TestBase {
 
         navigation.openProfile();
 
-        loginScreen.login(
-                data.email(),
-                data.password()
-        );
+        loginScreen.login(data.email(), data.password());
 
-        Assert.assertTrue(
-                loginScreen.isLoginErrorDisplayed(),
-                "Login should fail for scenario: " + data.scenario()
-        );
+        Assert.assertTrue(loginScreen.isLoginErrorDisplayed(),
+                "Login should fail for scenario: " + data.scenario());
     }
 
     @DataProvider(name = "invalidCredentials")
     public Object[][] invalidCredentials() {
-        return JsonDataReader.readAsDataProvider(
-                "testdata/invalid-login.json",
-                LoginTestData.class
-        );
+        return JsonDataReader.readAsDataProvider("testdata/invalid-login.json", LoginTestData.class);
     }
 }

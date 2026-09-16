@@ -3,6 +3,7 @@ package components;
 import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 import screens.Common;
+import utils.UiSelectorUtils;
 
 public class SearchBar extends Common {
     private final By searchInput =
@@ -19,7 +20,9 @@ public class SearchBar extends Common {
 
     public boolean areSuggestionsDisplayed(String productName) {
         By suggestions = AppiumBy.androidUIAutomator(
-                "new UiSelector().descriptionMatches(\"(?i).*" + productName + ".*\")"
+                "new UiSelector().descriptionMatches(\"(?i).*" +
+                        UiSelectorUtils.escapeRegexLiteral(productName) +
+                        ".*\")"
         );
 
         return areElementsDisplayed(suggestions);

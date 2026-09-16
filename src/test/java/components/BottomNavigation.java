@@ -17,13 +17,14 @@ public class BottomNavigation extends Common {
             AppiumBy.androidUIAutomator(
                     "new UiSelector().descriptionStartsWith(\"Profilis\")"
             );
-    private final  By homeTab = AppiumBy.androidUIAutomator(
+    private final By homeTab = AppiumBy.androidUIAutomator(
             "new UiSelector().descriptionStartsWith(\"Pradžia\")"
     );
 
     public void openProducts() {
         clickOnElement(productsTab);
     }
+
     public void openCart() {
         clickOnElement(cartTab);
     }
