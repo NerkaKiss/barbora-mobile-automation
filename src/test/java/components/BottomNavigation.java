@@ -22,18 +22,22 @@ public class BottomNavigation extends Common {
     );
 
     public void openProducts() {
+        new PromoOverlay().dismissIfDisplayed();
         clickOnElement(productsTab);
     }
 
     public void openCart() {
+        new PromoOverlay().dismissIfDisplayed();
         clickOnElement(cartTab);
     }
 
     public void openProfile() {
+        new PromoOverlay().dismissIfDisplayed();
         clickOnElement(profileTab);
     }
 
     public void openHome() {
+        new PromoOverlay().dismissIfDisplayed();
         clickOnElement(homeTab);
     }
 }

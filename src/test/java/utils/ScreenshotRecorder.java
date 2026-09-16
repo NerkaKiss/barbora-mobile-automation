@@ -21,6 +21,9 @@ public final class ScreenshotRecorder {
     }
 
     public static void captureAndAttach(String testName) {
+        if (!Driver.isInitialized()) {
+            return;
+        }
 
         try {
             if (!(Driver.getDriver() instanceof TakesScreenshot screenshot)) {

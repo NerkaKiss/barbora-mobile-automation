@@ -22,9 +22,34 @@ public class LoginScreen extends Common {
     public void login(String email, String password) {
         clickOnElement(emailInput);
         sendKeysActiveElement(email);
+
+        if (isInputEmpty(emailInput)) {
+            clickOnElement(emailInput);
+            sendKeysActiveElement(email);
+        }
+
+        if (isInputEmpty(emailInput)) {
+            throw new IllegalStateException("Email was not entered");
+        }
+
         clickOnElement(passwordInput);
         sendKeysActiveElement(password);
+
+        if (isInputEmpty(passwordInput)) {
+            clickOnElement(passwordInput);
+            sendKeysActiveElement(password);
+        }
+
+        if (isInputEmpty(passwordInput)) {
+            throw new IllegalStateException("Password was not entered");
+        }
+
         clickOnElement(loginButton);
+    }
+
+    private boolean isInputEmpty(By input) {
+        String text = driver.findElement(input).getText();
+        return text == null || text.isBlank();
     }
 
     public boolean isUserLoggedIn() {

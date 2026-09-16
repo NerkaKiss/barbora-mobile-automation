@@ -3,6 +3,7 @@ package test.barbora;
 import components.BottomNavigation;
 import components.SearchBar;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -12,6 +13,7 @@ import screens.barbora.ProductDetailsScreen;
 import screens.barbora.SearchScreen;
 import test.TestBase;
 import utils.AppManager;
+import utils.Driver;
 import utils.EnvReader;
 
 public class ProductCartFlowTest extends TestBase {
@@ -26,6 +28,11 @@ public class ProductCartFlowTest extends TestBase {
             loginScreen.login(
                     EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
                     EnvReader.getRequired("BARBORA_LOGIN_PASSWORD")
+            );
+
+            Assert.assertTrue(
+                    loginScreen.isUserLoggedIn(),
+                    "User should be logged in before cart flow setup"
             );
         }
     }
@@ -52,7 +59,11 @@ public class ProductCartFlowTest extends TestBase {
     }
 
     @AfterMethod(alwaysRun = true)
-    public void cleanCartState() {
+    public void cleanCartState(ITestResult result) {
+        if (!Driver.isInitialized() || !result.isSuccess()) {
+            return;
+        }
+
         ensureCartIsEmpty();
     }
 

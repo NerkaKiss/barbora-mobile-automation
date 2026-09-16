@@ -9,6 +9,7 @@ target/
 .idea/
 screenshots/
 videos/
+page-sources/
 .allure/
 allure-report/
 apk/
