@@ -14,11 +14,10 @@ jobs:
     env:
       BARBORA_LOGIN_EMAIL: ${{ secrets.BARBORA_LOGIN_EMAIL }}
       BARBORA_LOGIN_PASSWORD: ${{ secrets.BARBORA_LOGIN_PASSWORD }}
-      BARBORA_APK_TOKEN: ${{ secrets.BARBORA_APK_TOKEN }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Java
         uses: actions/setup-java@v6
@@ -60,7 +59,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run mobile tests
+      - name: Run BARBORA mobile tests
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
@@ -69,6 +68,7 @@ jobs:
           profile: pixel_7
           emulator-port: 5554
           disable-animations: true
+
           emulator-options: >-
             -no-snapshot-load
             -no-snapshot-save
@@ -78,33 +78,39 @@ jobs:
             -no-boot-anim
             -camera-back none
             -camera-front none
+
           script: |
+            echo "Connected devices:"
             adb devices
 
-            adb -s emulator-5554 install-multiple \
-              apk/base.apk \
-              apk/split_config.en.apk \
-              apk/split_config.x86_64.apk \
-              apk/split_config.xxhdpi.apk
+            echo "Installing BARBORA..."
+            adb -s emulator-5554 install-multiple -r apk/*.apk
 
-            adb -s emulator-5554 shell pm grant \
-              lt.barbora \
-              android.permission.POST_NOTIFICATIONS
+            echo "Granting notification permission..."
+            adb -s emulator-5554 shell pm grant lt.barbora android.permission.POST_NOTIFICATIONS
+
+            echo "Installed BARBORA package:"
+            adb -s emulator-5554 shell dumpsys package lt.barbora | grep -E "versionName|versionCode" || true
 
             echo "Starting Appium..."
             appium --log appium.log --log-level info &
 
             echo "Waiting for Appium..."
-            for i in {1..30}; do
-              if curl -fsS http://127.0.0.1:4723/status > /dev/null; then
-                echo "Appium is ready"
-                break
+            ATTEMPT=0
+            until curl -fsS http://127.0.0.1:4723/status > /dev/null; do
+              ATTEMPT=$((ATTEMPT + 1))
+
+              if [ "$ATTEMPT" -ge 30 ]; then
+                echo "Appium failed to start"
+                exit 1
               fi
+
               sleep 2
             done
 
-            curl -fsS http://127.0.0.1:4723/status > /dev/null
+            echo "Appium is ready."
 
+            echo "Running tests..."
             mvn -B clean test
 
       - name: Upload test artifacts
