@@ -1,7 +1,5 @@
 package utils;
 
-import java.util.regex.Pattern;
-
 public final class UiSelectorUtils {
 
     private UiSelectorUtils() {
@@ -21,6 +19,19 @@ public final class UiSelectorUtils {
     }
 
     public static String escapeRegexLiteral(String value) {
-        return escapeText(Pattern.quote(value));
+        return escapeText(value)
+                .replace(".", "\\.")
+                .replace("*", "\\*")
+                .replace("+", "\\+")
+                .replace("?", "\\?")
+                .replace("^", "\\^")
+                .replace("$", "\\$")
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+                .replace("{", "\\{")
+                .replace("}", "\\}")
+                .replace("|", "\\|");
     }
 }
