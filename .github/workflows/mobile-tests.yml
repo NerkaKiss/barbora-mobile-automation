@@ -40,28 +40,12 @@ jobs:
           appium driver list --installed
 
       - name: Download BARBORA APK
-        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.BARBORA_APK_TOKEN }}
         run: |
-          RELEASE_JSON=$(curl -fsSL \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $BARBORA_APK_TOKEN" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            https://api.github.com/repos/NerkaKiss/barbora-test-apk/releases/tags/v1)
-
-          ASSET_ID=$(echo "$RELEASE_JSON" \
-            | jq -r '.assets[] | select(.name=="barbora-apk.zip") | .id')
-
-          if [ -z "$ASSET_ID" ] || [ "$ASSET_ID" = "null" ]; then
-            echo "barbora-apk.zip was not found in release v1"
-            exit 1
-          fi
-
-          curl -fL \
-            -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $BARBORA_APK_TOKEN" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            "https://api.github.com/repos/NerkaKiss/barbora-test-apk/releases/assets/$ASSET_ID" \
-            -o barbora-apk.zip
+          gh release download v1 \
+            --repo NerkaKiss/barbora-test-apk \
+            --pattern "barbora-apk.zip"
 
           mkdir -p apk
           unzip barbora-apk.zip -d apk
