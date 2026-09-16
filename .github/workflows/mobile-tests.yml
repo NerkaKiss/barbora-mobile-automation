@@ -96,18 +96,7 @@ jobs:
             appium --log appium.log --log-level info &
 
             echo "Waiting for Appium..."
-            ATTEMPT=0
-            until curl -fsS http://127.0.0.1:4723/status > /dev/null; do
-              ATTEMPT=$((ATTEMPT + 1))
-
-              if [ "$ATTEMPT" -ge 30 ]; then
-                echo "Appium failed to start"
-                exit 1
-              fi
-
-              sleep 2
-            done
-
+            timeout 60 sh -c 'until curl -fsS http://127.0.0.1:4723/status >/dev/null; do sleep 2; done'
             echo "Appium is ready."
 
             echo "Running tests..."
