@@ -2,6 +2,18 @@ name: BARBORA Mobile Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      test_suite:
+        description: Test suite to run
+        required: true
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - regression
+          - full
+  schedule:
+    - cron: '0 2 * * *'
 
 permissions:
   contents: read
@@ -14,6 +26,7 @@ jobs:
     env:
       BARBORA_LOGIN_EMAIL: ${{ secrets.BARBORA_LOGIN_EMAIL }}
       BARBORA_LOGIN_PASSWORD: ${{ secrets.BARBORA_LOGIN_PASSWORD }}
+      TEST_SUITE: ${{ github.event_name == 'workflow_dispatch' && inputs.test_suite || 'full' }}
 
     steps:
       - name: Checkout repository
@@ -102,8 +115,12 @@ jobs:
             echo "Installed BARBORA package:"
             adb -s emulator-5554 shell dumpsys package lt.barbora | grep -E "versionName|versionCode" || true
 
-            echo "Running tests..."
-            mvn -B clean test
+            echo "Running $TEST_SUITE tests..."
+            if [ "$TEST_SUITE" = "full" ]; then
+              mvn -B clean test
+            else
+              mvn -B clean test -Dgroups="$TEST_SUITE"
+            fi
 
       - name: Stop Appium
         if: always()
@@ -123,6 +140,7 @@ jobs:
             target/allure-results/
             target/surefire-reports/
             screenshots/
+            page-sources/
             videos/
             appium.log
             appium-console.log
