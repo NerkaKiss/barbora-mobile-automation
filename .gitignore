@@ -11,3 +11,6 @@ screenshots/
 videos/
 .allure/
 allure-report/
+apk/
+*.apk
+barbora-apk.zip

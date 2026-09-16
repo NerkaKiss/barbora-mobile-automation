@@ -1,0 +1,138 @@
+name: BARBORA Mobile Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      BARBORA_LOGIN_EMAIL: ${{ secrets.BARBORA_LOGIN_EMAIL }}
+      BARBORA_LOGIN_PASSWORD: ${{ secrets.BARBORA_LOGIN_PASSWORD }}
+      BARBORA_APK_TOKEN: ${{ secrets.BARBORA_APK_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install Appium
+        run: |
+          npm install -g appium@3
+          appium driver install uiautomator2
+          appium --version
+          appium driver list --installed
+
+      - name: Download BARBORA APK
+        shell: bash
+        run: |
+          RELEASE_JSON=$(curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $BARBORA_APK_TOKEN" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            https://api.github.com/repos/NerkaKiss/barbora-test-apk/releases/tags/v1)
+
+          ASSET_ID=$(echo "$RELEASE_JSON" \
+            | jq -r '.assets[] | select(.name=="barbora-apk.zip") | .id')
+
+          if [ -z "$ASSET_ID" ] || [ "$ASSET_ID" = "null" ]; then
+            echo "barbora-apk.zip was not found in release v1"
+            exit 1
+          fi
+
+          curl -fL \
+            -H "Accept: application/octet-stream" \
+            -H "Authorization: Bearer $BARBORA_APK_TOKEN" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/NerkaKiss/barbora-test-apk/releases/assets/$ASSET_ID" \
+            -o barbora-apk.zip
+
+          mkdir -p apk
+          unzip barbora-apk.zip -d apk
+
+          echo "Downloaded APK files:"
+          ls -lh apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run mobile tests
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          emulator-port: 5554
+          disable-animations: true
+          emulator-options: >-
+            -no-snapshot-load
+            -no-snapshot-save
+            -no-window
+            -gpu swiftshader_indirect
+            -noaudio
+            -no-boot-anim
+            -camera-back none
+            -camera-front none
+          script: |
+            adb devices
+
+            adb -s emulator-5554 install-multiple \
+              apk/base.apk \
+              apk/split_config.en.apk \
+              apk/split_config.x86_64.apk \
+              apk/split_config.xxhdpi.apk
+
+            adb -s emulator-5554 shell pm grant \
+              lt.barbora \
+              android.permission.POST_NOTIFICATIONS
+
+            echo "Starting Appium..."
+            appium --log appium.log --log-level info &
+
+            echo "Waiting for Appium..."
+            for i in {1..30}; do
+              if curl -fsS http://127.0.0.1:4723/status > /dev/null; then
+                echo "Appium is ready"
+                break
+              fi
+              sleep 2
+            done
+
+            curl -fsS http://127.0.0.1:4723/status > /dev/null
+
+            mvn -B clean test
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: barbora-mobile-test-artifacts-${{ github.run_number }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            target/allure-results/
+            target/surefire-reports/
+            screenshots/
+            videos/
+            appium.log
