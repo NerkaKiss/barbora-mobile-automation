@@ -363,6 +363,4 @@ Generated local files such as `.env`, `target/`, `screenshots/`, `page-sources/`
 Potential improvements that would keep the suite responsible against a live app:
 
 - Publish selected Allure reports to GitHub Pages for portfolio review.
-- Add an architecture diagram for `TestBase`, `Driver`, screen objects, and reusable components.
-- Add a small local setup checklist for emulator creation and APK installation.
 - Add more explicit screen load markers where the app exposes stable accessibility identifiers.
