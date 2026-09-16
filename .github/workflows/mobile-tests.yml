@@ -59,6 +59,16 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Start Appium
+        run: |
+          nohup appium --log appium.log --log-level info > appium-console.log 2>&1 &
+          echo $! > appium.pid
+
+          timeout 60 bash -c 'until curl -fsS http://127.0.0.1:4723/status >/dev/null; do sleep 2; done'
+
+          echo "Appium is ready"
+          curl -fsS http://127.0.0.1:4723/status
+
       - name: Run BARBORA mobile tests
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
@@ -92,22 +102,22 @@ jobs:
             echo "Installed BARBORA package:"
             adb -s emulator-5554 shell dumpsys package lt.barbora | grep -E "versionName|versionCode" || true
 
-            echo "Starting Appium..."
-            appium --log appium.log --log-level info &
-
-            echo "Waiting for Appium..."
-            timeout 60 sh -c 'until curl -fsS http://127.0.0.1:4723/status >/dev/null; do sleep 2; done'
-            echo "Appium is ready."
-
             echo "Running tests..."
             mvn -B clean test
+
+      - name: Stop Appium
+        if: always()
+        run: |
+          if [ -f appium.pid ]; then
+            kill "$(cat appium.pid)" || true
+          fi
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: barbora-mobile-test-artifacts-${{ github.run_number }}
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 14
           path: |
             target/allure-results/
@@ -115,3 +125,4 @@ jobs:
             screenshots/
             videos/
             appium.log
+            appium-console.log

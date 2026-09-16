@@ -8,10 +8,6 @@ import utils.UiSelectorUtils;
 public class SearchScreen extends Common {
 
     public boolean areResultsDisplayed(String query) {
-        By searchQuery = AppiumBy.accessibilityId(query);
-        if (!isElementDisplayed(searchQuery)) {
-            return false;
-        }
         By results = AppiumBy.androidUIAutomator(
                 "new UiSelector().descriptionMatches(\"(?i).*" +
                         UiSelectorUtils.escapeRegexLiteral(query) +
