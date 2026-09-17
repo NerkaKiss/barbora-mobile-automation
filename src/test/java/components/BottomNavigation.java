@@ -27,8 +27,11 @@ public class BottomNavigation extends Common {
     }
 
     public void openCart() {
-        new PromoOverlay().dismissIfDisplayed();
+        PromoOverlay promoOverlay = new PromoOverlay();
+
+        promoOverlay.dismissIfDisplayed();
         clickOnElement(cartTab);
+        promoOverlay.dismissIfDisplayed();
     }
 
     public void openProfile() {

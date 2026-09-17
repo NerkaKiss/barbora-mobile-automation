@@ -11,6 +11,7 @@ public class SearchBar extends Common {
 
     public void enterSearchQuery(String productName) {
         clickOnElement(searchInput);
+        clearInputElement(searchInput);
         sendKeysToElement(searchInput, productName);
     }
 

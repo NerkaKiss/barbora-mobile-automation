@@ -25,6 +25,12 @@ public class Common {
         );
     }
 
+    protected void clearInputElement(By locator) {
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(locator)
+        ).clear();
+    }
+
     protected boolean isElementDisplayed(By locator) {
         try {
             return wait.until(
