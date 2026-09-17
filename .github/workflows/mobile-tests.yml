@@ -86,11 +86,12 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
-          target: google_apis
+          target: google_atd
           arch: x86_64
           profile: pixel_7
           emulator-port: 5554
           disable-animations: true
+          disable-spellchecker: true
 
           emulator-options: >-
             -no-snapshot-load
@@ -99,12 +100,17 @@ jobs:
             -gpu swiftshader_indirect
             -noaudio
             -no-boot-anim
+            -no-metrics
             -camera-back none
             -camera-front none
 
           script: |
             echo "Connected devices:"
             adb devices
+
+            echo "Disabling Android crash and ANR dialogs..."
+            adb -s emulator-5554 shell settings put global hide_error_dialogs 1
+            adb -s emulator-5554 shell settings put global show_first_crash_dialog 0
 
             echo "Installing BARBORA..."
             adb -s emulator-5554 install-multiple -r apk/*.apk

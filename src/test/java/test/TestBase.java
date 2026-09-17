@@ -1,11 +1,8 @@
 package test;
 
 import components.CookieBanner;
-import components.PromoOverlay;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import utils.Driver;
 import utils.PageSourceRecorder;
@@ -16,21 +13,16 @@ public abstract class TestBase {
 
     private static boolean startupStateHandled = false;
 
-    @BeforeClass(alwaysRun = true)
-    public void startDriverSession() {
-        Driver.startDriver();
-    }
-
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
         try {
+            Driver.startDriver();
+            VideoRecorder.startRecording();
+
             if (!startupStateHandled) {
                 new CookieBanner().acceptIfDisplayed();
                 startupStateHandled = true;
             }
-
-            VideoRecorder.startRecording();
-
         } catch (Exception e) {
             attachFailureArtifacts("setup");
             throw e;
@@ -39,16 +31,15 @@ public abstract class TestBase {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            attachFailureArtifacts(result.getName());
-        } else {
-            VideoRecorder.stopAndDiscard();
+        try {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                attachFailureArtifacts(result.getName());
+            } else {
+                VideoRecorder.stopAndDiscard();
+            }
+        } finally {
+            Driver.quitDriver();
         }
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void stopDriverSession() {
-        Driver.quitDriver();
     }
 
     private void attachFailureArtifacts(String name) {

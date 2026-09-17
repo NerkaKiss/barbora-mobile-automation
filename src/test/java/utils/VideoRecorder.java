@@ -47,6 +47,8 @@ public final class VideoRecorder {
             return;
         }
 
+        recordingStarted = false;
+
         try {
             String base64Video =
                     Driver.getDriver().stopRecordingScreen();
@@ -77,8 +79,6 @@ public final class VideoRecorder {
                     "Failed to save video for test '%s': %s"
                             .formatted(testName, e.getMessage())
             );
-        } finally {
-            recordingStarted = false;
         }
     }
 
@@ -88,14 +88,14 @@ public final class VideoRecorder {
             return;
         }
 
+        recordingStarted = false;
+
         try {
             Driver.getDriver().stopRecordingScreen();
         } catch (Exception e) {
             System.err.println(
                     "Failed to stop video recording: " + e.getMessage()
             );
-        } finally {
-            recordingStarted = false;
         }
     }
 }
