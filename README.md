@@ -9,15 +9,27 @@ End-to-end mobile test automation for the BARBORA Android application. Built as 
 ![Allure](https://img.shields.io/badge/Allure-Reports-orange)
 [![BARBORA Mobile Tests](https://github.com/NerkaKiss/barbora-mobile-automation/actions/workflows/mobile-tests.yml/badge.svg)](https://github.com/NerkaKiss/barbora-mobile-automation/actions/workflows/mobile-tests.yml)
 
-> This suite runs against a live mobile application backed by real external services. Occasional failures may happen due to application availability, slow page loads, backend responses, or UI changes rather than framework issues. Automatic test retries are intentionally not used, so instability stays visible and is supported by failure artifacts.
+> The suite runs against a live mobile application backed by external services. Failures are intentionally left visible and supported by screenshots, video, Android page source, Appium logs, and test reports to help distinguish application, backend, UI, automation, and CI infrastructure issues.
 
 ---
 
 ## About This Project
 
-This project demonstrates practical Android mobile automation against a real e-commerce application. It covers app launch, bottom navigation, login, invalid login validation, search, product details, cart operations, and session persistence after app restart.
+This project demonstrates practical Android mobile automation against a real e-commerce application.
 
-The focus is on maintainable QA automation architecture: screen objects, reusable components, TestNG groups, JSON-driven test data, environment-based credentials, CI execution on an Android emulator, and useful failure diagnostics through screenshots, videos, page source files, Appium logs, Surefire reports, and Allure results.
+It covers app launch, bottom navigation, login, invalid login validation, search, product details, cart operations, and session persistence after app restart.
+
+The focus is on maintainable QA automation architecture:
+
+- Screen objects
+- Reusable UI components
+- TestNG groups
+- JSON-driven test data
+- Environment-based credentials
+- Per-test Appium session isolation
+- Explicit business-state preparation
+- CI execution on an Android emulator
+- Failure diagnostics through screenshots, videos, page source files, Appium logs, Surefire reports, and Allure results
 
 ---
 
@@ -26,15 +38,19 @@ The focus is on maintainable QA automation architecture: screen objects, reusabl
 - **Smoke suite** - critical checks for app launch, navigation, search input, search suggestions, valid login, and adding a searched product to cart.
 - **Regression suite** - broader coverage for submitted search results, invalid login data, cart quantity changes, cart persistence, product removal, and session persistence.
 - **Data-driven login tests** - invalid credential scenarios are stored in JSON and supplied through a TestNG `DataProvider`.
-- **State preparation** - login and cart state are prepared before cart flow tests and cleaned only after successful tests to preserve failure evidence.
-- **Overlay handling** - startup cookie banner and promo overlay handling are isolated in reusable components.
+- **Test isolation** - each TestNG test method starts a fresh Appium session while keeping `app.noReset=true`; tests prepare their own required business state.
+- **State preparation** - login and cart state are prepared explicitly before cart flow tests and cleaned only after successful tests to preserve failure evidence.
+- **Overlay handling** - startup cookie handling and promotional overlays are handled outside the main test logic through reusable components and shared infrastructure.
 - **Failure diagnostics** - failed setup or test methods capture screenshots, Android page source, video, and reporting artifacts.
+- **No automatic retries** - failures remain visible instead of being hidden by generic retry logic.
 
 ---
 
 ## Responsible Testing Against a Live App
 
-This project targets a live mobile application, so the suite is intentionally limited. The goal is to demonstrate mobile automation design and E2E testing practices without generating unnecessary traffic or performing destructive actions.
+This project targets a live mobile application, so the suite is intentionally limited.
+
+The goal is to demonstrate mobile automation design and E2E testing practices without generating unnecessary traffic or performing destructive actions.
 
 Key decisions:
 
@@ -42,6 +58,8 @@ Key decisions:
 - Avoid placing real orders or reaching payment flows.
 - Use sequential TestNG execution by default.
 - Clean cart state after successful cart tests.
+- Avoid excessive retries against the live service.
+- Preserve failure evidence instead of automatically repeating failed scenarios.
 
 ---
 
@@ -53,12 +71,12 @@ Key decisions:
 |   `-- mobile-tests.yml                # GitHub Actions: manual suite selection and nightly full run
 |-- src/test/java/
 |   |-- components/
-|   |   |-- BottomNavigation.java        # Bottom navigation actions
-|   |   |-- CookieBanner.java            # Cookie banner handling
-|   |   |-- PromoOverlay.java            # Promo overlay handling
-|   |   `-- SearchBar.java               # Search field and suggestions
+|   |   |-- BottomNavigation.java       # Bottom navigation actions
+|   |   |-- CookieBanner.java           # Cookie banner handling
+|   |   |-- PromoOverlay.java           # Explicit promo overlay component used in test flows
+|   |   `-- SearchBar.java              # Search field and suggestions
 |   |-- screens/
-|   |   |-- Common.java                  # Shared waits, clicks, and helper methods
+|   |   |-- Common.java                 # Shared waits, clicks, and helper methods
 |   |   `-- barbora/
 |   |       |-- CartScreen.java
 |   |       |-- HomeScreen.java
@@ -68,7 +86,7 @@ Key decisions:
 |   |       |-- ProfileScreen.java
 |   |       `-- SearchScreen.java
 |   |-- test/
-|   |   |-- TestBase.java                # Driver lifecycle, startup handling, failure artifacts
+|   |   |-- TestBase.java               # Per-test driver lifecycle and failure artifacts
 |   |   `-- barbora/
 |   |       |-- HomeTest.java
 |   |       |-- LoginTest.java
@@ -77,24 +95,26 @@ Key decisions:
 |   |       |-- SearchTest.java
 |   |       `-- SessionPersistenceTest.java
 |   |-- testdata/
-|   |   `-- LoginTestData.java           # Invalid login data model
+|   |   `-- LoginTestData.java          # Invalid login data model
 |   `-- utils/
-|       |-- AppManager.java              # App restart helper
-|       |-- ConfigReader.java            # config.properties reader
-|       |-- Driver.java                  # AndroidDriver setup and lifecycle
-|       |-- EnvReader.java               # Environment and .env credentials reader
-|       |-- JsonDataReader.java          # JSON test data reader
-|       |-- PageSourceRecorder.java      # Page source file and Allure attachment
-|       |-- ScreenshotRecorder.java      # Screenshot file and Allure attachment
-|       |-- UiSelectorUtils.java         # Android UiSelector escaping helpers
-|       `-- VideoRecorder.java           # Appium screen recording handling
+|       |-- AppManager.java             # App restart helper
+|       |-- ConfigReader.java           # config.properties reader
+|       |-- Driver.java                 # AndroidDriver setup and lifecycle
+|       |-- EnvReader.java              # Environment and .env credentials reader
+|       |-- JsonDataReader.java         # JSON test data reader
+|       |-- PageSourceRecorder.java     # Page source file and Allure attachment
+|       |-- PromoOverlayHandler.java    # Lightweight automatic promo dismissal from shared actions
+|       |-- ScreenshotRecorder.java     # Screenshot file and Allure attachment
+|       |-- TestListener.java           # TestNG configuration failure artifact capture
+|       |-- UiSelectorUtils.java        # Android UiSelector escaping helpers
+|       `-- VideoRecorder.java          # Appium screen recording handling
 |-- src/test/resources/
 |   |-- allure.properties
-|   |-- config.properties                # Appium, device, package, and app launch config
+|   |-- config.properties               # Appium, device, package, and app launch config
 |   `-- testdata/
-|       `-- invalid-login.json           # Data-driven invalid login scenarios
-|-- testng.xml                           # TestNG suite configuration
-|-- pom.xml                              # Dependencies and Maven plugins
+|       `-- invalid-login.json          # Data-driven invalid login scenarios
+|-- testng.xml                          # TestNG suite configuration
+|-- pom.xml                             # Dependencies and Maven plugins
 `-- README.md
 ```
 
@@ -104,36 +124,63 @@ Key decisions:
 
 ### Screen Objects + Reusable Components + Base Test
 
-Tests use screen objects for full-screen areas and components for shared UI elements. This keeps test classes focused on user scenarios while locators and Appium interactions stay in reusable classes.
+Tests use screen objects for full-screen areas and components for reusable UI elements.
+
+This keeps test classes focused on user scenarios while locators, waits, Appium interactions, and infrastructure concerns remain outside the tests.
 
 ```text
 Test class
   `-- TestBase
         |-- Driver
-        |-- CookieBanner / PromoOverlay
+        |-- CookieBanner
         |-- ScreenshotRecorder
         |-- PageSourceRecorder
         `-- VideoRecorder
 
+TestNG suite
+  `-- TestListener
+
 Test flow
   |-- components
   |     |-- BottomNavigation
-  |     `-- SearchBar
+  |     |-- SearchBar
+  |     `-- PromoOverlay
+  |
   `-- screens
         |-- LoginScreen
         |-- SearchScreen
         |-- ProductDetailsScreen
         `-- CartScreen
+
+Shared UI interaction
+  `-- Common
+        `-- PromoOverlayHandler
 ```
 
-Key conventions:
+### Promo Overlay Handling
+
+The project uses two related but separate promo-handling layers:
+
+- `PromoOverlay` is a reusable UI component for flows that explicitly need to check or dismiss a promo overlay.
+- `PromoOverlayHandler` provides lightweight automatic dismissal from shared `Common` UI actions.
+
+This keeps promotional UI behavior outside the individual test methods while still allowing explicit handling when a specific flow requires it.
+
+### Key Conventions
 
 - Screen and component classes encapsulate locators and UI actions.
 - Assertions stay in test classes.
-- `TestBase` owns driver startup, startup banners, video recording, and failure artifacts.
+- Tests do not directly use `AndroidDriver`.
+- `TestBase` starts and quits one Appium session per test method.
+- `app.noReset=true` preserves application data while each test still prepares its own required business state.
+- `TestBase` owns startup handling, video recording, and normal test failure artifacts.
+- `TestListener` captures artifacts for TestNG configuration failures such as failed `@BeforeMethod` setup.
+- Shared promo handling is centralized rather than duplicated across tests.
+- `Driver` prints lightweight Appium session start and quit timings with `[PERF]` log lines.
 - Test data for invalid login scenarios is stored in JSON.
 - Credentials are read from real environment variables first and `.env` second.
 - TestNG groups control smoke, regression, and full execution.
+- Automatic retries are intentionally not used.
 
 ---
 
@@ -148,11 +195,11 @@ Key conventions:
 | Product and cart flow | `ProductCartFlowTest.java` | `smoke`, `regression` | Add product, increase quantity, persistence after navigation/restart, remove product |
 | Session persistence | `SessionPersistenceTest.java` | `regression` | User remains logged in after app restart |
 
-Current test count:
+### Current Suite Size
 
-| Suite | Count |
+| Suite | Test invocations |
 | --- | ---: |
-| All test invocations | 17 |
+| Full | 17 |
 | Smoke | 8 |
 | Regression | 9 |
 
@@ -256,7 +303,11 @@ TestNG suite configuration is stored in `testng.xml`.
 
 ## CI/CD
 
-GitHub Actions workflow is configured in `.github/workflows/mobile-tests.yml`.
+GitHub Actions workflow is configured in:
+
+```text
+.github/workflows/mobile-tests.yml
+```
 
 | Trigger | Suite | Command behavior |
 | --- | --- | --- |
@@ -271,16 +322,28 @@ Required GitHub secrets:
 | `BARBORA_LOGIN_PASSWORD` | Test account password |
 | `BARBORA_APK_TOKEN` | Token used by CI to download the BARBORA APK artifact |
 
-CI behavior:
+### CI Behavior
+
+The workflow:
 
 - Sets up Java and Node.js.
 - Installs Appium 3 and the UiAutomator2 driver.
 - Downloads the BARBORA APK release asset.
 - Starts Appium before the Android emulator test step.
-- Runs tests on a Pixel 7 Android emulator.
+- Creates a Pixel 7 Android 15/API 35 `google_atd` emulator.
+- Uses hardware virtualization through KVM on the GitHub-hosted Linux runner.
+- Runs the emulator with 2 CPU cores.
+- Disables emulator animations.
+- Disables the Android spellchecker.
+- Disables emulator metrics.
+- Disables audio and cameras.
+- Disables snapshots and boot animation.
+- Disables Android system crash and ANR dialogs before installing and running BARBORA.
+- Installs the split APK bundle.
+- Executes the selected TestNG suite.
 - Uploads reports and diagnostic artifacts after every run.
 
-Uploaded artifacts:
+### Uploaded CI Artifacts
 
 - `target/allure-results/`
 - `target/surefire-reports/`
@@ -290,11 +353,25 @@ Uploaded artifacts:
 - `appium.log`
 - `appium-console.log`
 
+The collected evidence helps distinguish between:
+
+```text
+Test automation failure
+Application/UI failure
+Backend or external service issue
+Android/Appium issue
+CI/emulator infrastructure failure
+```
+
 ---
 
 ## Allure Reporting
 
-Allure results are written to `target/allure-results`.
+Allure results are written to:
+
+```text
+target/allure-results
+```
 
 Generate a local HTML report:
 
@@ -314,13 +391,14 @@ Serve the report directly:
 mvn allure:serve
 ```
 
-Attachment policy:
+### Attachment Policy
 
-- Passed tests attach nothing, and successful test videos are discarded.
+- Passed tests attach nothing.
+- Successful test videos are discarded.
 - Failed tests save and attach a screenshot.
 - Failed tests save and attach Android page source XML.
 - Failed tests save and attach a screen recording when recording was started.
-- Setup failures also attempt to attach failure artifacts.
+- TestNG configuration failures, including setup failures, also attempt to attach screenshot, page source, and video artifacts.
 - Screenshots are also written to `screenshots/`.
 - Page sources are also written to `page-sources/`.
 - Failed-test videos are written to `videos/`.
@@ -329,7 +407,7 @@ Attachment policy:
 
 ## Failure Diagnostics
 
-On failed tests, the framework provides:
+On failed tests and TestNG configuration failures, the framework provides:
 
 - Screenshot in `screenshots/`
 - Android page source XML in `page-sources/`
@@ -340,7 +418,16 @@ On failed tests, the framework provides:
 - Appium server logs in CI artifacts
 - Surefire reports in CI artifacts
 
-Automatic test retries are intentionally not enabled for this portfolio project. If the live application randomly fails to load a page, the failure remains visible and can be investigated with the attached evidence.
+Appium session lifecycle timing is printed to standard output:
+
+```text
+[PERF] Appium session start: 12.4 s
+[PERF] Appium session quit: 1.8 s
+```
+
+Automatic test retries are intentionally not enabled.
+
+If the live application, backend, Android emulator, or automation environment behaves unexpectedly, the original failure remains visible and can be investigated using the collected evidence instead of being hidden by repeated execution.
 
 Generated local files such as `.env`, `target/`, `screenshots/`, `page-sources/`, `videos/`, downloaded APK files, and Allure reports are excluded from version control.
 
@@ -353,14 +440,20 @@ Generated local files such as `.env`, `target/`, `screenshots/`, `page-sources/`
 - UI changes in the mobile app can require locator or flow updates.
 - Authenticated tests require a valid test account.
 - Cart and session tests depend on the behavior of a real account and real application state.
-- The suite intentionally avoids destructive checkout/payment actions.
+- Promotional overlays may appear asynchronously and can affect normal user flows.
+- GitHub-hosted Android emulator provisioning can occasionally fail independently of the test suite.
+- Android emulator and UiAutomator2 stability can vary between CI runs.
+- The suite intentionally avoids destructive checkout and payment actions.
 - Automatic test retries are not enabled by design.
 
 ---
 
 ## Future Improvements
 
-Potential improvements that would keep the suite responsible against a live app:
+Potential improvements that would keep the suite maintainable and responsible against a live application:
 
 - Publish selected Allure reports to GitHub Pages for portfolio review.
-- Add more explicit screen load markers where the app exposes stable accessibility identifiers.
+- Add more explicit screen load markers where the application exposes stable accessibility identifiers.
+- Run selected scenarios on a real-device cloud such as BrowserStack.
+- Profile CI runtime and reduce unnecessary waiting without weakening test isolation.
+- Add automated failure classification for test automation, application, backend, Android/Appium, and CI infrastructure issues.
