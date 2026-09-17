@@ -1,7 +1,6 @@
 package test.barbora;
 
 import components.BottomNavigation;
-import components.PromoOverlay;
 import components.SearchBar;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -22,9 +21,7 @@ public class ProductCartFlowTest extends TestBase {
     private void ensureUserIsLoggedIn() {
         BottomNavigation navigation = new BottomNavigation();
         LoginScreen loginScreen = new LoginScreen();
-        new PromoOverlay().dismissIfDisplayed();
         navigation.openProfile();
-        new PromoOverlay().dismissIfDisplayed();
         if (!loginScreen.isUserLoggedIn()) {
             loginScreen.login(
                     EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
@@ -41,7 +38,6 @@ public class ProductCartFlowTest extends TestBase {
     private void ensureCartIsEmpty() {
         BottomNavigation navigation = new BottomNavigation();
         CartScreen cartScreen = new CartScreen();
-        new PromoOverlay().dismissIfDisplayed();
         navigation.openCart();
 
         if (!cartScreen.isCartEmpty()) {

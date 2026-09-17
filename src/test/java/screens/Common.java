@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.Driver;
+import utils.PromoOverlayHandler;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,13 +26,21 @@ public class Common {
         );
     }
 
+    private void handlePromoOverlay() {
+        PromoOverlayHandler.dismissIfPresent(driver);
+    }
+
     protected void clearInputElement(By locator) {
+        handlePromoOverlay();
+
         wait.until(
                 ExpectedConditions.visibilityOfElementLocated(locator)
         ).clear();
     }
 
     protected boolean isElementDisplayed(By locator) {
+        handlePromoOverlay();
+
         try {
             return wait.until(
                     ExpectedConditions.visibilityOfElementLocated(locator)
@@ -43,24 +52,32 @@ public class Common {
     }
 
     protected void clickOnElement(By locator) {
+        handlePromoOverlay();
+
         wait.until(
                 ExpectedConditions.elementToBeClickable(locator)
         ).click();
     }
 
     protected void sendKeysToElement(By locator, String text) {
+        handlePromoOverlay();
+
         wait.until(
                 ExpectedConditions.visibilityOfElementLocated(locator)
         ).sendKeys(text);
     }
 
     protected String getTextFromElement(By locator) {
+        handlePromoOverlay();
+
         return wait.until(
                 ExpectedConditions.visibilityOfElementLocated(locator)
         ).getText();
     }
 
     protected List<WebElement> getElements(By locator) {
+        handlePromoOverlay();
+
         return driver.findElements(locator);
     }
 
@@ -72,31 +89,43 @@ public class Common {
     }
 
     protected boolean areElementsDisplayed(By locator) {
+        handlePromoOverlay();
+
         try {
             return wait.until(driver ->
                     driver.findElements(locator)
                             .stream()
                             .anyMatch(WebElement::isDisplayed)
             );
+
         } catch (TimeoutException e) {
             return false;
         }
     }
 
     protected void sendKeysActiveElement(String text) {
-        WebElement activeElement = driver.switchTo().activeElement();
+        handlePromoOverlay();
+
+        WebElement activeElement =
+                driver.switchTo().activeElement();
+
         activeElement.sendKeys(text);
     }
 
     protected void waitForElement(By locator) {
+        handlePromoOverlay();
+
         wait.until(
                 ExpectedConditions.visibilityOfElementLocated(locator)
         );
     }
 
     protected void clickNthElement(By locator, int index) {
+        handlePromoOverlay();
+
         WebElement element = wait.until(driver -> {
-            List<WebElement> elements = driver.findElements(locator);
+            List<WebElement> elements =
+                    driver.findElements(locator);
 
             return elements.size() > index
                     ? elements.get(index)
@@ -107,6 +136,8 @@ public class Common {
     }
 
     protected String getContentDescription(By locator) {
+        handlePromoOverlay();
+
         return wait.until(
                 ExpectedConditions.visibilityOfElementLocated(locator)
         ).getAttribute("content-desc");
@@ -119,6 +150,8 @@ public class Common {
     }
 
     protected WebElement getParentElement(By childLocator) {
+        handlePromoOverlay();
+
         WebElement child = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(childLocator)
         );

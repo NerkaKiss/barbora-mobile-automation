@@ -26,7 +26,6 @@ public abstract class TestBase {
         try {
             if (!startupStateHandled) {
                 new CookieBanner().acceptIfDisplayed();
-                new PromoOverlay().dismissIfDisplayed();
                 startupStateHandled = true;
             }
 
