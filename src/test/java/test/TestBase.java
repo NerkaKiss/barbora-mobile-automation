@@ -25,16 +25,20 @@ public abstract class TestBase {
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
         try {
-            VideoRecorder.startRecording();
-
-            // Restart app, but keep the same Appium/UiAutomator2 session
+            // Fresh app launch before every test,
+            // but keep the same Appium/UiAutomator2 session.
             AppManager.restartApp();
 
+            // First-run UI state only needs to be handled once.
             if (!startupStateHandled) {
                 new CookieBanner().acceptIfDisplayed();
                 new PromoOverlay().dismissIfDisplayed();
                 startupStateHandled = true;
             }
+
+            // Separate recording for every test.
+            // Starts after app restart, so restart itself is not recorded.
+            VideoRecorder.startRecording();
 
         } catch (Exception e) {
             attachFailureArtifacts("setup");
@@ -44,7 +48,7 @@ public abstract class TestBase {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
-        if (!result.isSuccess()) {
+        if (result.getStatus() == ITestResult.FAILURE) {
             attachFailureArtifacts(result.getName());
         } else {
             VideoRecorder.stopAndDiscard();
