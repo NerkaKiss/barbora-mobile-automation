@@ -13,8 +13,11 @@ public class PromoOverlay extends Common {
 
     private static final Duration PROMO_WAIT = Duration.ofSeconds(3);
 
-    private final By promoDismiss =
+    private final By promoOverlay =
             AppiumBy.accessibilityId("Atsisakyti");
+
+    private final By promoCloseButton =
+            AppiumBy.accessibilityId("Uždaryti");
 
     public void dismissIfDisplayed() {
         WebDriverWait promoWait =
@@ -22,18 +25,23 @@ public class PromoOverlay extends Common {
 
         try {
             promoWait.until(
-                    ExpectedConditions.visibilityOfElementLocated(promoDismiss)
+                    ExpectedConditions.visibilityOfElementLocated(promoOverlay)
             );
         } catch (TimeoutException ignored) {
             return;
         }
 
-        clickOnElement(promoDismiss);
-
         try {
             promoWait.until(
-                    ExpectedConditions.invisibilityOfElementLocated(promoDismiss)
+                    ExpectedConditions.visibilityOfElementLocated(promoCloseButton)
             );
+
+            clickOnElement(promoCloseButton);
+
+            promoWait.until(
+                    ExpectedConditions.invisibilityOfElementLocated(promoOverlay)
+            );
+
         } catch (TimeoutException e) {
             throw new IllegalStateException(
                     "Promo overlay was detected but did not close",
