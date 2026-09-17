@@ -1,12 +1,20 @@
 package test.barbora;
 
+import components.PromoOverlay;
 import components.SearchBar;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import screens.barbora.SearchScreen;
 import test.TestBase;
 
 public class SearchTest extends TestBase {
+
+    @BeforeMethod(alwaysRun = true)
+    public void prepareSearchState() {
+        new PromoOverlay().dismissIfDisplayed();
+    }
+
     @Test(groups = "smoke")
     public void searchFieldShouldAcceptProductQuery() {
 
