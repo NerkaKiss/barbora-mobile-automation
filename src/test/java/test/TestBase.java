@@ -1,7 +1,6 @@
 package test;
 
 import components.CookieBanner;
-import components.PromoOverlay;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -22,7 +21,6 @@ public abstract class TestBase {
 
             if (!startupStateHandled) {
                 new CookieBanner().acceptIfDisplayed();
-                new PromoOverlay().dismissIfDisplayed();
                 startupStateHandled = true;
             }
         } catch (Exception e) {

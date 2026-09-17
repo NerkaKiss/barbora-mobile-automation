@@ -21,11 +21,11 @@ public class LoginScreen extends Common {
 
     public void login(String email, String password) {
         clickOnElement(emailInput);
-        sendKeysActiveElement(email);
+        sendKeysToElement(emailInput, email);
 
         if (isInputEmpty(emailInput)) {
             clickOnElement(emailInput);
-            sendKeysActiveElement(email);
+            sendKeysToElement(emailInput, email);
         }
 
         if (isInputEmpty(emailInput)) {
@@ -33,11 +33,11 @@ public class LoginScreen extends Common {
         }
 
         clickOnElement(passwordInput);
-        sendKeysActiveElement(password);
+        sendKeysToElement(passwordInput, password);
 
         if (isInputEmpty(passwordInput)) {
             clickOnElement(passwordInput);
-            sendKeysActiveElement(password);
+            sendKeysToElement(passwordInput, password);
         }
 
         if (isInputEmpty(passwordInput)) {

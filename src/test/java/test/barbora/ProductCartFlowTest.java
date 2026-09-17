@@ -1,6 +1,7 @@
 package test.barbora;
 
 import components.BottomNavigation;
+import components.PromoOverlay;
 import components.SearchBar;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -40,7 +41,7 @@ public class ProductCartFlowTest extends TestBase {
     private void ensureCartIsEmpty() {
         BottomNavigation navigation = new BottomNavigation();
         CartScreen cartScreen = new CartScreen();
-
+        new PromoOverlay().dismissIfDisplayed();
         navigation.openCart();
 
         if (!cartScreen.isCartEmpty()) {

@@ -1,6 +1,7 @@
 package test.barbora;
 
 import components.BottomNavigation;
+import components.PromoOverlay;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,6 +36,7 @@ public class SessionPersistenceTest extends TestBase {
         LoginScreen loginScreen = new LoginScreen();
 
         navigation.openProfile();
+        new PromoOverlay().dismissIfDisplayed();
 
         Assert.assertTrue(
                 loginScreen.isUserLoggedIn(),

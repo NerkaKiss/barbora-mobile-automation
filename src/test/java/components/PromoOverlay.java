@@ -3,9 +3,12 @@ package components;
 import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import screens.Common;
 
+import java.time.Duration;
 import java.util.Map;
 
 public class PromoOverlay extends Common {
@@ -16,14 +19,22 @@ public class PromoOverlay extends Common {
                     + "//android.widget.Button[@content-desc='Uždaryti']"
     );
 
+    private static final Duration PROMO_WAIT = Duration.ofSeconds(3);
+
     public void dismissIfDisplayed() {
-        for (WebElement closeButton : driver.findElements(promoCloseButton)) {
-            if (!closeButton.isDisplayed()) {
-                continue;
-            }
+        try {
+            WebElement closeButton = new WebDriverWait(driver, PROMO_WAIT)
+                    .until(d -> d.findElements(promoCloseButton)
+                            .stream()
+                            .filter(WebElement::isDisplayed)
+                            .filter(WebElement::isEnabled)
+                            .findFirst()
+                            .orElse(null));
 
             tap(closeButton);
-            return;
+
+        } catch (TimeoutException ignored) {
+            // Promo overlay did not appear
         }
     }
 
