@@ -75,8 +75,17 @@ public class ProductCartFlowTest extends TestBase {
         ProductDetailsScreen productDetailsScreen = new ProductDetailsScreen();
         BottomNavigation navigation = new BottomNavigation();
 
-        searchBar.enterSearchQuery(query);
+        searchBar.enterSearchQuery("pienas");
+
+        System.out.println(
+                "BEFORE SEARCH ACTION: [" + searchBar.getSearchQuery() + "]"
+        );
+
         searchBar.submitSearch();
+
+        System.out.println(
+                "AFTER SEARCH ACTION: [" + searchBar.getSearchQuery() + "]"
+        );
 
         searchScreen.openFirstProduct(query);
 
