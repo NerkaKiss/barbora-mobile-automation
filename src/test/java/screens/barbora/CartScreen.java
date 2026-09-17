@@ -4,8 +4,6 @@ import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import screens.Common;
-import utils.PageSourceRecorder;
-import utils.ScreenshotRecorder;
 import utils.UiSelectorUtils;
 
 public class CartScreen extends Common {
@@ -40,8 +38,6 @@ public class CartScreen extends Common {
 
     public void removeAllProducts() {
         clickOnElement(cleanCart);
-        ScreenshotRecorder.captureAndAttach("after-clean-cart-click");
-        PageSourceRecorder.captureAndAttach("after-clean-cart-click");
         clickOnElementCustom(cleanCartConfirmation);
     }
 

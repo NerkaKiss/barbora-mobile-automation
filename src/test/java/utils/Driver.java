@@ -14,6 +14,7 @@ public final class Driver {
     }
 
     public static void startDriver() {
+        long startTime = System.nanoTime();
 
         UiAutomator2Options options = new UiAutomator2Options()
                 .setUdid(ConfigReader.get("android.udid"))
@@ -42,6 +43,8 @@ public final class Driver {
                             + ConfigReader.get("appium.server.url"),
                     e
             );
+        } finally {
+            printElapsed("Appium session start", startTime);
         }
     }
 
@@ -62,6 +65,8 @@ public final class Driver {
 
     public static void quitDriver() {
         if (driver != null) {
+            long startTime = System.nanoTime();
+
             try {
                 driver.quit();
             } catch (Exception e) {
@@ -70,7 +75,13 @@ public final class Driver {
                 );
             } finally {
                 driver = null;
+                printElapsed("Appium session quit", startTime);
             }
         }
+    }
+
+    private static void printElapsed(String label, long startTime) {
+        double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;
+        System.out.printf("[PERF] %s: %.1f s%n", label, elapsedSeconds);
     }
 }
