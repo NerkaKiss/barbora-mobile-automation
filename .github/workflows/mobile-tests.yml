@@ -114,13 +114,9 @@ jobs:
 
             echo "Installed BARBORA package:"
             adb -s emulator-5554 shell dumpsys package lt.barbora | grep -E "versionName|versionCode" || true
-
+            
             echo "Running $TEST_SUITE tests..."
-            if [ "$TEST_SUITE" = "full" ]; then
-              mvn -B clean test
-            else
-              mvn -B clean test -Dgroups="$TEST_SUITE"
-            fi
+            if [ "$TEST_SUITE" = "full" ]; then mvn -B clean test; else mvn -B clean test -Dgroups="$TEST_SUITE"; fi
 
       - name: Stop Appium
         if: always()
