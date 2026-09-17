@@ -22,9 +22,9 @@ public class ProductCartFlowTest extends TestBase {
     private void ensureUserIsLoggedIn() {
         BottomNavigation navigation = new BottomNavigation();
         LoginScreen loginScreen = new LoginScreen();
-
+        new PromoOverlay().dismissIfDisplayed();
         navigation.openProfile();
-
+        new PromoOverlay().dismissIfDisplayed();
         if (!loginScreen.isUserLoggedIn()) {
             loginScreen.login(
                     EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
