@@ -51,6 +51,12 @@ public class Common {
         }
     }
 
+    protected void clickOnElementCustom(By locator) {
+        wait.until(
+                ExpectedConditions.elementToBeClickable(locator)
+        ).click();
+    }
+
     protected void clickOnElement(By locator) {
         handlePromoOverlay();
 

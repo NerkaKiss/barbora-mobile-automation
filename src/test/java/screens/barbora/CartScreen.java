@@ -42,7 +42,7 @@ public class CartScreen extends Common {
         clickOnElement(cleanCart);
         ScreenshotRecorder.captureAndAttach("after-clean-cart-click");
         PageSourceRecorder.captureAndAttach("after-clean-cart-click");
-        clickOnElement(cleanCartConfirmation);
+        clickOnElementCustom(cleanCartConfirmation);
     }
 
     private WebElement getProductCard(String productName) {
