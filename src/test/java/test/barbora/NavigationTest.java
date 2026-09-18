@@ -47,7 +47,7 @@ public class NavigationTest extends TestBase {
         navigation.openProfile();
 
         Assert.assertTrue(
-                profileScreen.isLoginDisplayed(),
+                profileScreen.isProfileDisplayed(),
                 "Login screen should be displayed"
         );
     }

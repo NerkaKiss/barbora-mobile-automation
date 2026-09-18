@@ -6,10 +6,10 @@ import screens.Common;
 
 public class ProfileScreen extends Common {
 
-    private final By loginScreenElement =
+    private final By profileScreenMarker =
             AppiumBy.accessibilityId("Profilis");
 
-    public boolean isLoginDisplayed() {
-        return isElementDisplayed(loginScreenElement);
+    public boolean isProfileDisplayed() {
+        return isElementDisplayed(profileScreenMarker);
     }
 }

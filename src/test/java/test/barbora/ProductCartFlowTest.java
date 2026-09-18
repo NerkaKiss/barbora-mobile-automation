@@ -1,7 +1,6 @@
 package test.barbora;
 
 import components.BottomNavigation;
-import components.PromoOverlay;
 import components.SearchBar;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -9,52 +8,21 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import screens.barbora.CartScreen;
-import screens.barbora.LoginScreen;
 import screens.barbora.ProductDetailsScreen;
 import screens.barbora.SearchScreen;
+import state.ProductCartTestState;
 import test.TestBase;
 import utils.AppManager;
 import utils.Driver;
-import utils.EnvReader;
 
 public class ProductCartFlowTest extends TestBase {
 
-    private void ensureUserIsLoggedIn() {
-        BottomNavigation navigation = new BottomNavigation();
-        LoginScreen loginScreen = new LoginScreen();
-        navigation.openProfile();
-        new PromoOverlay().dismissIfDisplayed();
-        if (!loginScreen.isUserLoggedIn()) {
-            loginScreen.login(
-                    EnvReader.getRequired("BARBORA_LOGIN_EMAIL"),
-                    EnvReader.getRequired("BARBORA_LOGIN_PASSWORD")
-            );
-
-            Assert.assertTrue(
-                    loginScreen.isUserLoggedIn(),
-                    "User should be logged in before cart flow setup"
-            );
-        }
-    }
-
-    private void ensureCartIsEmpty() {
-        BottomNavigation navigation = new BottomNavigation();
-        CartScreen cartScreen = new CartScreen();
-        navigation.openCart();
-
-        if (!cartScreen.isCartEmpty()) {
-            cartScreen.removeAllProducts();
-        }
-    }
+    private ProductCartTestState testState;
 
     @BeforeMethod(alwaysRun = true)
     public void prepareTestState() {
-        BottomNavigation navigation = new BottomNavigation();
-
-        ensureUserIsLoggedIn();
-        ensureCartIsEmpty();
-
-        navigation.openHome();
+        testState = new ProductCartTestState();
+        testState.prepareLoggedInWithEmptyCart();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -63,7 +31,7 @@ public class ProductCartFlowTest extends TestBase {
             return;
         }
 
-        ensureCartIsEmpty();
+        testState.ensureCartIsEmpty();
     }
 
     private String addSearchedProductToCart(String query) {
