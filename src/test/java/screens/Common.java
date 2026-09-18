@@ -58,11 +58,15 @@ public class Common {
     }
 
     protected void clickOnElement(By locator) {
-        handlePromoOverlay();
+        WebElement element = wait.until(webDriver -> {
+            handlePromoOverlay();
 
-        wait.until(
-                ExpectedConditions.elementToBeClickable(locator)
-        ).click();
+            return ExpectedConditions
+                    .elementToBeClickable(locator)
+                    .apply(webDriver);
+        });
+
+        element.click();
     }
 
     protected void sendKeysToElement(By locator, String text) {
