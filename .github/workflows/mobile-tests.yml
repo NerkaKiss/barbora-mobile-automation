@@ -12,16 +12,23 @@ on:
           - smoke
           - regression
           - full
+
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '37 0 * * *'
 
 permissions:
   contents: read
+  actions: read
+  pages: write
+  id-token: write
 
 jobs:
   mobile-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    outputs:
+      pages-ready: ${{ steps.pages-ready.outputs.ready }}
 
     env:
       BARBORA_LOGIN_EMAIL: ${{ secrets.BARBORA_LOGIN_EMAIL }}
@@ -120,9 +127,13 @@ jobs:
 
             echo "Installed BARBORA package:"
             adb -s emulator-5554 shell dumpsys package lt.barbora | grep -E "versionName|versionCode" || true
-            
+
             echo "Running $TEST_SUITE tests..."
-            if [ "$TEST_SUITE" = "full" ]; then mvn -B clean test; else mvn -B clean test -Dgroups="$TEST_SUITE"; fi
+            if [ "$TEST_SUITE" = "full" ]; then
+              mvn -B clean test
+            else
+              mvn -B clean test -Dgroups="$TEST_SUITE"
+            fi
 
       - name: Stop Appium
         if: always()
@@ -130,6 +141,47 @@ jobs:
           if [ -f appium.pid ]; then
             kill "$(cat appium.pid)" || true
           fi
+
+      # ------------------------------------------------------------
+      # Allure / GitHub Pages
+      # ------------------------------------------------------------
+
+      - name: Check for Allure results
+        if: always()
+        id: allure-results
+        shell: bash
+        run: |
+          if [ -d "target/allure-results" ] && \
+             find target/allure-results -type f -print -quit | grep -q .; then
+            echo "has_results=true" >> "$GITHUB_OUTPUT"
+            echo "Allure results found."
+          else
+            echo "has_results=false" >> "$GITHUB_OUTPUT"
+            echo "No Allure results found."
+          fi
+
+      - name: Generate Allure report
+        if: ${{ always() && env.TEST_SUITE == 'full' && steps.allure-results.outputs.has_results == 'true' }}
+        run: mvn -B allure:report
+
+      - name: Configure GitHub Pages
+        if: ${{ always() && env.TEST_SUITE == 'full' && steps.allure-results.outputs.has_results == 'true' }}
+        uses: actions/configure-pages@v6
+
+      - name: Upload Allure report to GitHub Pages
+        if: ${{ always() && env.TEST_SUITE == 'full' && steps.allure-results.outputs.has_results == 'true' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: target/site/allure-maven-plugin
+
+      - name: Mark Pages artifact ready
+        if: ${{ always() && env.TEST_SUITE == 'full' && steps.allure-results.outputs.has_results == 'true' }}
+        id: pages-ready
+        run: echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------
+      # Existing diagnostic artifacts
+      # ------------------------------------------------------------
 
       - name: Upload test artifacts
         if: always()
@@ -146,3 +198,22 @@ jobs:
             videos/
             appium.log
             appium-console.log
+
+  deploy-pages:
+    name: Deploy Allure report
+    needs: mobile-tests
+
+    # Run even when the mobile-tests job is RED,
+    # but only if a FULL run actually produced an Allure Pages artifact.
+    if: ${{ always() && needs.mobile-tests.outputs.pages-ready == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy Allure report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
