@@ -39,12 +39,14 @@ public class Common {
     }
 
     protected boolean isElementDisplayed(By locator) {
-        handlePromoOverlay();
-
         try {
-            return wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(locator)
-            ).isDisplayed();
+            return wait.until(webDriver -> {
+                handlePromoOverlay();
+
+                return ExpectedConditions
+                        .visibilityOfElementLocated(locator)
+                        .apply(webDriver) != null;
+            });
 
         } catch (TimeoutException e) {
             return false;
